@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>College Chatbot</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-image: url('https://umkc.edu/global-assets/images/social%20cards/social-large_1200x630.jpg');
+            background-size: cover;
+            background-position: center;
+            height: 100vh;
+            display: flex;
+            justify-content: flex-end;
+            align-items: flex-end;
+        }
+
+        #chat-container {
+            display: none;
+            max-width: 500px;
+            width: 100%;
+            background-color: rgba(240, 140, 140, 0.4);
+            box-shadow: 0 0 20px rgba(5, 220, 170, 0.2);
+            border-radius: 8px;
+            overflow: hidden;
+            flex-direction: column;
+            margin: 50px;
+            height: 400px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #chat-messages {
+            flex-grow: 1;
+            padding: 20px;
+            overflow-y: auto;
+            max-height: 100%; /* Adjusted to 100% for full height */
+        }
+
+        #user-input {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-top: 1px solid #eee;
+        }
+
+        #user-input input {
+            flex-grow: 1;
+            padding: 8px;
+            margin-right: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            outline: none;
+        }
+
+        #user-input button {
+            padding: 10px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .message {
+            margin-bottom: 10px;
+            max-width: 70%;
+            border-radius: 8px;
+            padding: 10px;
+            word-wrap: break-word;
+        }
+
+        .user {
+            background-color: #e6f7ff;
+            align-self: flex-start;  /* Changed to flex-start for opposite direction */
+        }
+
+        .bot {
+            background-color: #72D2F9;
+            align-self: flex-start;  /* Changed to flex-end for opposite direction */
+        }
+
+        #chatbot-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            cursor: pointer;
+            border: none;
+            outline: none;
+            background: none;
+            z-index: 1000;
+        }
+
+        #chatbot-btn img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body>
+    <button id="chatbot-btn" onclick="toggleChatContainer()">
+        <img src="https://www.shutterstock.com/image-vector/artificial-ai-chat-bot-icon-600nw-2281213775.jpg" alt="Chatbot">
+    </button>
+
+    <div id="chat-container">
+        <div id="chat-messages"></div>
+        <div id="user-input">
+            <input type="text" id="user-message" placeholder="Type your message...">
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+
+    <script>
+        function sendMessage() {
+            var userMessage = document.getElementById('user-message').value;
+            if (userMessage.trim() !== '') {
+                displayMessage('user', userMessage);
+
+                // Send the user's message to the server and get the response
+                fetch('/ask', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: 'user_input=' + encodeURIComponent(userMessage),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Display the chatbot's response
+                    displayMessage('bot', data.response);
+                });
+
+                document.getElementById('user-message').value = '';
+            }
+        }
+
+        function displayMessage(sender, message) {
+            var chatMessages = document.getElementById('chat-messages');
+            var messageDiv = document.createElement('div');
+            messageDiv.className = 'message ' + sender;
+            messageDiv.innerHTML = message;
+            chatMessages.appendChild(messageDiv);
+
+            // Scroll to the bottom to show the latest messages
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function toggleChatContainer() {
+            var chatContainer = document.getElementById('chat-container');
+            chatContainer.style.display = chatContainer.style.display === 'none' ? 'flex' : 'none';
+        }
+    </script>
+</body>
+</html>
